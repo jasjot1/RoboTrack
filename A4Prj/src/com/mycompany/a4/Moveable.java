@@ -41,8 +41,10 @@ abstract class Moveable extends GameObject{
 		
 		
 		//Update current location
-		this.setLocation(newX, newY);
+		//this.setLocation(newX, newY);
+		this.translate(newX - this.getX(), newY-this.getY());
 		
+
 
 	}
 	
@@ -68,6 +70,7 @@ abstract class Moveable extends GameObject{
 
 	//setter for heading: checks if heading is between 0-359
 	public void setHeading(int newHeading) {
+		int oldHeading = heading;
 		heading = newHeading;
 		
 		//Add or subtract 360 from heading whether heading goes outside 0-359
@@ -75,6 +78,9 @@ abstract class Moveable extends GameObject{
 			setHeading(heading - 360);
 		if (heading < 0)
 			setHeading(360 + heading);
+		
+		//Fix this
+		this.rotate(heading - oldHeading);
 	}
 	
 

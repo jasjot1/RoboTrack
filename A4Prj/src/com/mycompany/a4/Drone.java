@@ -2,6 +2,7 @@ package com.mycompany.a4;
 import java.util.Random;
 
 import com.codename1.ui.Graphics;
+import com.codename1.ui.Transform;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 
@@ -10,6 +11,8 @@ public class Drone extends Moveable{
 	private static Random rand = new Random();
 	private int mapWidth;
 	private int mapHeight;
+	
+	private Point top, bottomLeft, bottomRight;
 	
 	//Takes in color of drone, along with map dimensions to randomly place drone somewhere in the map
 	public Drone(int color, int mapWidth, int mapHeight) {
@@ -22,6 +25,7 @@ public class Drone extends Moveable{
 		
 		this.mapHeight = mapHeight;
 		this.mapWidth = mapWidth;
+		
 	}
 
 	//Color of drone not allowed to be changed
@@ -51,19 +55,43 @@ public class Drone extends Moveable{
 			//setHeading(rand.nextInt(360));	//Random heading
 			setHeading(getHeading() + 180);		//Turn robot in opposite direction
 		}
+		
 	}
 	
-	public void draw(Graphics g, Point pCmpRelPrnt) {
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
 		g.setColor(getColor());
 		
-		int x = (int) (getX() + pCmpRelPrnt.getX());
-		int y = (int) (getY() + pCmpRelPrnt.getY());
+		Transform original = Transform.makeIdentity(); //Save original transform
+	    g.getTransform(original);
 		
-		int xPoints[] = {x-(getSize()/2), x, x + (getSize()/2)};
-		int yPoints[] = {y + (getSize()/2), y+getSize(), y + (getSize()/2)};
+		Transform gXform = original.copy();
+		g.getTransform(gXform);
+		gXform.translate(pCmpRelScrn.getX(),pCmpRelScrn.getY());
+		gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+		gXform.concatenate(getMyRotation());
+		gXform.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+		gXform.translate(-pCmpRelScrn.getX(),-pCmpRelScrn.getY());
+		g.setTransform(gXform);
 		
-		g.drawPolygon(xPoints, yPoints, 3);
+		top = new Point(getX(), getY() + getSize()/2);
+		bottomLeft = new Point(getX()-getSize()/2, getY()-getSize()/2);
+		bottomRight = new Point(getX()+getSize()/2, getY()-getSize()/2);
 		
+	    g.drawLine((int) (pCmpRelPrnt.getX() + top.getX()), (int) (pCmpRelPrnt.getY() + top.getY()),
+	    		(int) (pCmpRelPrnt.getX() + bottomLeft.getX()), 
+	    		(int) (pCmpRelPrnt.getY() + bottomLeft.getY()));
+	    
+	    g.drawLine((int) (pCmpRelPrnt.getX() + bottomLeft.getX()), 
+	    		(int) (pCmpRelPrnt.getY() + bottomLeft.getY()),
+	               (int) (pCmpRelPrnt.getX() + bottomRight.getX()), 
+	               (int) (pCmpRelPrnt.getY() + bottomRight.getY()));
+	    
+	    g.drawLine((int) (pCmpRelPrnt.getX() + bottomRight.getX()), 
+	    		(int) (pCmpRelPrnt.getY() + bottomRight.getY()),
+	               (int) (pCmpRelPrnt.getX() + top.getX()), 
+	               (int) (pCmpRelPrnt.getY() + top.getY()));
+	    
+	    g.setTransform(original); //Restore saved graphics transform
 	}
 
 	@Override

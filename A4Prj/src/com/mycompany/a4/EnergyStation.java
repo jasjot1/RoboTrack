@@ -39,7 +39,7 @@ public class EnergyStation extends Fixed{
 		return "EnergyStation: " + parentDesc + desc;
 	}
 	
-	public void draw(Graphics g, Point pCmpRelPrnt) {
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScreen) {
 		g.setColor(getColor());	//Set the color using what was created in Game world
 		
 		if(isSelected()) {

@@ -4,5 +4,5 @@ import com.codename1.ui.Graphics;
 import com.codename1.charts.models.Point;
 
 public interface IDrawable {
-	public void draw(Graphics g, Point pCmpRelPrnt);
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScreen);
 }

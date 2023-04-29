@@ -54,7 +54,7 @@ public class NonPlayerRobot extends Robot{
 		return "NonPlayerRobot:" + parentDesc + newDesc;
 	}
 	
-	public void draw(Graphics g, Point pCmpRelPrnt) {
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
 		g.setColor(getColor());
 		g.drawRect((int)(getX() + pCmpRelPrnt.getX()) - getSize()/2, (int)(getY() + pCmpRelPrnt.getY()) - getSize()/2, getSize(), getSize());
 		

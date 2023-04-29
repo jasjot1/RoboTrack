@@ -39,11 +39,16 @@ public class MapView extends Container implements Observer{
 		super.paint(g);
 		GameObjectCollection collection = gw.getCollection();	//Get the game object collection
 		
+		//origin location of the component (CustomContainer) relative to its parent container origin
+		Point pCmpRelPrnt = new Point(getX(),getY());
+		//origin location of the component (CustomContainer) relative to the screen origin
+		Point pCmpRelScreen = new Point(getAbsoluteX(),getAbsoluteY());
+		
 		//Iterate through all of the GameObjects to call draw
 		IIterator elements = collection.getIterator();
 		while (elements.hasNext()) {
 			GameObject obj = (GameObject) elements.getNext();
-			obj.draw(g, new Point(getX(),getY()));
+			obj.draw(g, pCmpRelPrnt, pCmpRelScreen);
 		}
 	}
 	

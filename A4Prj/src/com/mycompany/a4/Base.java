@@ -30,7 +30,7 @@ public class Base extends Fixed{
 	}
 	
 	//
-	public void draw(Graphics g, Point pCmpRelPrnt) {
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScreen) {
 		g.setColor(getColor());
 		
 		int x = (int) (getX() + pCmpRelPrnt.getX());
