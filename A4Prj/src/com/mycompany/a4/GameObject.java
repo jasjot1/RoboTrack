@@ -23,7 +23,7 @@ abstract class GameObject implements IDrawable, ICollider{
 		this.color = color;
 		
 		//Set location based on xy coordinates
-		this.location = new Point(x,y);
+		//this.location = new Point(x,y);
 		
 		
 		myTranslation = Transform.makeIdentity();

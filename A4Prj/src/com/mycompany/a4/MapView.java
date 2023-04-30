@@ -6,6 +6,7 @@ import java.util.Observer;
 import com.codename1.charts.util.ColorUtil;
 import com.codename1.ui.Container;
 import com.codename1.ui.Graphics;
+import com.codename1.ui.Transform;
 import com.codename1.ui.geom.Dimension;
 import com.codename1.charts.models.Point;
 import com.codename1.ui.layouts.BorderLayout;
@@ -14,6 +15,9 @@ import com.codename1.ui.plaf.Border;
 public class MapView extends Container implements Observer{
 	
 	GameWorld gw; //Store GameWorld instance
+	Transform worldToND, ndToDisplay, theVTM;
+	private float winLeft, winBottom, winRight, winTop;
+	
 	
 	public MapView(GameWorld gw) {
 		this.gw = gw;	//Constructor takes in instance of game world and assigns it
@@ -24,6 +28,23 @@ public class MapView extends Container implements Observer{
 		//Red border
 		getAllStyles().setBorder(Border.createLineBorder(3, ColorUtil.rgb(255, 0, 0)));
 		
+		//Lower left corner
+		winLeft = 0;
+		winBottom = 0;
+		
+		//Temp values for upper right corner that will be changed after calling show in Game
+		winRight = 500;
+		winTop = 500;
+		
+		theVTM = Transform.makeIdentity();
+	}
+	
+	//Initialize upper right corner values only after calling show()
+	public void updateBoundaries(int width, int height) {
+		this.winTop = height/2;
+		this.winRight = width/2;
+		
+		repaint();
 	}
 	
 	
@@ -36,20 +57,48 @@ public class MapView extends Container implements Observer{
 	}
 	
 	public void paint(Graphics g) {
-		super.paint(g);
-		GameObjectCollection collection = gw.getCollection();	//Get the game object collection
-		
-		//origin location of the component (CustomContainer) relative to its parent container origin
-		Point pCmpRelPrnt = new Point(getX(),getY());
-		//origin location of the component (CustomContainer) relative to the screen origin
-		Point pCmpRelScreen = new Point(getAbsoluteX(),getAbsoluteY());
-		
-		//Iterate through all of the GameObjects to call draw
-		IIterator elements = collection.getIterator();
-		while (elements.hasNext()) {
-			GameObject obj = (GameObject) elements.getNext();
-			obj.draw(g, pCmpRelPrnt, pCmpRelScreen);
-		}
+	    super.paint(g);
+	    GameObjectCollection collection = gw.getCollection(); // Get the game object collection
+
+	    float winWidth = winRight - winLeft;
+	    float winHeight = winTop - winBottom;
+
+	    worldToND = buildWorldToNDXform(winWidth, winHeight, winLeft, winBottom);
+	    ndToDisplay = buildNDToDisplayXform(getWidth(), getHeight());
+	    theVTM = ndToDisplay.copy();
+	    theVTM.concatenate(worldToND);
+
+	    Transform gXform = Transform.makeIdentity();
+	    g.getTransform(gXform);
+	    gXform.translate(getAbsoluteX(), getAbsoluteY());
+	    gXform.concatenate(theVTM);
+	    gXform.translate(-getAbsoluteX(), -getAbsoluteY());
+	    g.setTransform(gXform);
+
+	    Point pCmpRelPrnt = new Point(getX(), getY());
+	    Point pCmpRelScrn = new Point(getAbsoluteX(), getAbsoluteY());
+
+	    IIterator elements = collection.getIterator();
+	    while (elements.hasNext()) {
+	        GameObject obj = (GameObject) elements.getNext();
+	        obj.draw(g, pCmpRelPrnt, pCmpRelScrn);
+	    }
+
+	    g.resetAffine();
+	}
+
+	private Transform buildWorldToNDXform(float winWidth, float winHeight, float winLeft, float winBottom) {
+	    Transform tmpXform = Transform.makeIdentity();
+	    tmpXform.scale(1 / winWidth, 1 / winHeight);
+	    tmpXform.translate(-winLeft, -winBottom);
+	    return tmpXform;
+	}
+
+	private Transform buildNDToDisplayXform(float displayWidth, float displayHeight) {
+	    Transform tmpXform = Transform.makeIdentity();
+	    tmpXform.translate(0, displayHeight);
+	    tmpXform.scale(displayWidth, -displayHeight);
+	    return tmpXform;
 	}
 	
 	//Make fixed objects selectable while in pause mode
@@ -93,7 +142,4 @@ public class MapView extends Container implements Observer{
 		repaint();
 	}
 	
-	
-	
-
 }

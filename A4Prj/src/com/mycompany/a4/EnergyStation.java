@@ -43,15 +43,16 @@ public class EnergyStation extends Fixed{
 		g.setColor(getColor());	//Set the color using what was created in Game world
 		
 		if(isSelected()) {
-			g.drawArc((int)(getX()+ pCmpRelPrnt.getX()), (int)(getY()+ pCmpRelPrnt.getY()), getSize(), getSize(), 0, 360); //Drawing a filled circle
+			g.drawArc((int)(getX()+ pCmpRelPrnt.getX()-getSize()/2), (int)(getY()+ pCmpRelPrnt.getY()-getSize()/2), getSize(), getSize(), 0, 360); //Drawing a filled circle
 		}
 		else {
-			g.fillArc((int)(getX()+ pCmpRelPrnt.getX()), (int)(getY()+ pCmpRelPrnt.getY()), getSize(), getSize(), 0, 360); //Drawing a filled circle
+			g.fillArc((int)(getX()+ pCmpRelPrnt.getX()-getSize()/2), (int)(getY()+ pCmpRelPrnt.getY()-getSize()/2), getSize(), getSize(), 0, 360); //Drawing a filled circle
 		}
 		
 		g.setColor(ColorUtil.BLACK); //Black text
 		g.drawString(String.valueOf(getCapacity()), (int)(getX()+ pCmpRelPrnt.getX()), (int)(getY()+ pCmpRelPrnt.getY())); //Display capacity of energy station
 	}
+
 
 	@Override
 	public boolean collidesWith(GameObject otherObject) {

@@ -1,6 +1,7 @@
 package com.mycompany.a4;
 
 import com.codename1.ui.Graphics;
+import com.codename1.ui.Transform;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 
@@ -55,10 +56,26 @@ public class NonPlayerRobot extends Robot{
 	}
 	
 	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
-		g.setColor(getColor());
-		g.drawRect((int)(getX() + pCmpRelPrnt.getX()) - getSize()/2, (int)(getY() + pCmpRelPrnt.getY()) - getSize()/2, getSize(), getSize());
-		
+	    g.setColor(getColor());
+
+		Transform gXform = Transform.makeIdentity();
+	    g.getTransform(gXform);
+		Transform original = gXform.copy();
+	    gXform.translate(pCmpRelScrn.getX(), pCmpRelScrn.getY());
+	    gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    gXform.concatenate(getMyRotation());
+	    gXform.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
+	    g.setTransform(gXform);
+
+	    int x = (int) (pCmpRelPrnt.getX() + getX() - getSize() / 2);
+	    int y = (int) (pCmpRelPrnt.getY() + getY() - getSize() / 2);
+
+	    g.drawRect(x, y, getSize(), getSize());
+
+	    g.setTransform(original); // Restore saved graphics transform
 	}
+
 
 	@Override
 	public boolean collidesWith(GameObject otherObject) {

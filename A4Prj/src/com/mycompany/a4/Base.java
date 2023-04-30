@@ -1,12 +1,13 @@
 package com.mycompany.a4;
 
 import com.codename1.ui.Graphics;
+import com.codename1.ui.Transform;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 
 public class Base extends Fixed{
 	private final int sequenceNumber;	//Each base is numbered marker 
-	
+	private Point top, bottomLeft, bottomRight;
 	public Base(int sequenceNumber, int size, int color, float x, float y) {
 		super(size, color, x, y);
 		this.sequenceNumber = sequenceNumber;
@@ -29,16 +30,29 @@ public class Base extends Fixed{
 		return "Base: " + parentDesc + desc;
 	}
 	
-	//
-	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScreen) {
-		g.setColor(getColor());
+	//Draw base
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
+	    g.setColor(getColor());
+
+		Transform gXform = Transform.makeIdentity();
+	    g.getTransform(gXform);
+		Transform original = gXform.copy();
 		
-		int x = (int) (getX() + pCmpRelPrnt.getX());
-		int y = (int) (getY() + pCmpRelPrnt.getY());
-		
-		int xPoints[] = {x-(getSize()/2), x, x + (getSize()/2)};
-		int yPoints[] = {y + (getSize()/2), y+getSize(), y + (getSize()/2)};
-		
+	    gXform.translate(pCmpRelScrn.getX(), pCmpRelScrn.getY());
+	    gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    gXform.concatenate(getMyRotation());
+	    gXform.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
+	    g.setTransform(gXform);
+
+	    top = new Point(getX(), getY() + getSize()/2);
+	    bottomLeft = new Point(getX() - getSize()/2, getY() - getSize()/2);
+	    bottomRight = new Point(getX() + getSize()/2, getY() - getSize()/2);
+
+	    int[] xPoints = {(int) (pCmpRelPrnt.getX() + top.getX()), (int) (pCmpRelPrnt.getX() + bottomLeft.getX()), (int) (pCmpRelPrnt.getX() + bottomRight.getX())};
+	    int[] yPoints = {(int) (pCmpRelPrnt.getY() + top.getY()), (int) (pCmpRelPrnt.getY() + bottomLeft.getY()), (int) (pCmpRelPrnt.getY() + bottomRight.getY())};
+
+	    
 		
 		if(isSelected()) {
 			g.drawPolygon(xPoints, yPoints, 3);
@@ -48,6 +62,8 @@ public class Base extends Fixed{
 		
 		g.setColor(ColorUtil.BLACK); //Black text
 		g.drawString(String.valueOf(sequenceNumber), (int)(getX()+ pCmpRelPrnt.getX()), (int)(getY()+ pCmpRelPrnt.getY())); //Display sequence number
+		
+		g.setTransform(original); //Restore saved graphics transform
 	}
 
 	@Override

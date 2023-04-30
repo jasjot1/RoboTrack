@@ -65,12 +65,10 @@ public class PlayerRobot extends Robot{
 
 	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
 	    g.setColor(getColor());
-
-	    Transform original = Transform.makeIdentity(); // Save original transform
-	    g.getTransform(original);
-
-	    Transform gXform = original.copy();
+	    
+		Transform gXform = Transform.makeIdentity();
 	    g.getTransform(gXform);
+		Transform original = gXform.copy();
 	    gXform.translate(pCmpRelScrn.getX(), pCmpRelScrn.getY());
 	    gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
 	    gXform.concatenate(getMyRotation());

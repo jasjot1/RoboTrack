@@ -219,6 +219,9 @@ public class Game extends Form implements Runnable{
 		gw.setHeight(mapView.getHeight());	
 		gw.setWidth(mapView.getWidth());
 		
+		
+		mapView.updateBoundaries(mapView.getWidth(), mapView.getHeight());
+		
 		gw.init(); //Sets initial state of game
 		gw.createSounds(); 
 		timer.schedule(timerRate, true, this); //Schedule timer with rate

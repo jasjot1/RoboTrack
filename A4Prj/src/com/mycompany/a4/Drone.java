@@ -58,14 +58,14 @@ public class Drone extends Moveable{
 		
 	}
 	
+	//Draw drone
 	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
 		g.setColor(getColor());
 		
-		Transform original = Transform.makeIdentity(); //Save original transform
-	    g.getTransform(original);
+		Transform gXform = Transform.makeIdentity();
+	    g.getTransform(gXform);
+		Transform original = gXform.copy();
 		
-		Transform gXform = original.copy();
-		g.getTransform(gXform);
 		gXform.translate(pCmpRelScrn.getX(),pCmpRelScrn.getY());
 		gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
 		gXform.concatenate(getMyRotation());
