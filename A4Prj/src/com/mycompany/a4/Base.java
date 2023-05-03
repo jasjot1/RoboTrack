@@ -2,6 +2,7 @@ package com.mycompany.a4;
 
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Transform;
+import com.codename1.ui.Transform.NotInvertibleException;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 
@@ -11,7 +12,9 @@ public class Base extends Fixed{
 	public Base(int sequenceNumber, int size, int color, float x, float y) {
 		super(size, color, x, y);
 		this.sequenceNumber = sequenceNumber;
-		
+		top = new Point(0, getSize()/2);
+		bottomLeft = new Point(-getSize()/2, -getSize()/2);
+		bottomRight = new Point(getSize()/2, -getSize()/2);
 	}
 	
 	public int getSequenceNumber() {
@@ -45,15 +48,15 @@ public class Base extends Fixed{
 	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
 	    g.setTransform(gXform);
 
-	    top = new Point(getX(), getY() + getSize()/2);
-	    bottomLeft = new Point(getX() - getSize()/2, getY() - getSize()/2);
-	    bottomRight = new Point(getX() + getSize()/2, getY() - getSize()/2);
+	    /*
+		top = new Point(0, getSize()/2);
+		bottomLeft = new Point(-getSize()/2, -getSize()/2);
+		bottomRight = new Point(getSize()/2, -getSize()/2);*/
 
 	    int[] xPoints = {(int) (pCmpRelPrnt.getX() + top.getX()), (int) (pCmpRelPrnt.getX() + bottomLeft.getX()), (int) (pCmpRelPrnt.getX() + bottomRight.getX())};
 	    int[] yPoints = {(int) (pCmpRelPrnt.getY() + top.getY()), (int) (pCmpRelPrnt.getY() + bottomLeft.getY()), (int) (pCmpRelPrnt.getY() + bottomRight.getY())};
 
 	    
-		
 		if(isSelected()) {
 			g.drawPolygon(xPoints, yPoints, 3);
 		}
@@ -61,7 +64,7 @@ public class Base extends Fixed{
 			g.fillPolygon(xPoints, yPoints, 3);
 		
 		g.setColor(ColorUtil.BLACK); //Black text
-		g.drawString(String.valueOf(sequenceNumber), (int)(getX()+ pCmpRelPrnt.getX()), (int)(getY()+ pCmpRelPrnt.getY())); //Display sequence number
+		g.drawString(String.valueOf(sequenceNumber), (int)(pCmpRelPrnt.getX()), (int)(pCmpRelPrnt.getY())); //Display sequence number
 		
 		g.setTransform(original); //Restore saved graphics transform
 	}
@@ -113,15 +116,33 @@ public class Base extends Fixed{
 		gw.checkWin();
 	}
 
-	public boolean contains(Point pPtrRelPrnt, Point pCmpRelPrnt) {
-		int px = (int) pPtrRelPrnt.getX(); // pointer location relative to
-		int py = (int) pPtrRelPrnt.getY(); // parent’s origin
-		int xLoc = (int) (pCmpRelPrnt.getX()+ getX());// shape location relative
-		int yLoc = (int) (pCmpRelPrnt.getY()+ getY());// to parent’s origin
-		if ( (px >= xLoc) && (px <= xLoc+getSize()) && (py >= yLoc) && (py <= yLoc+getSize()))
-			return true; 
-		else 
-			return false;
+	public boolean contains(float[] fPtr) {
+		
+		Point lowerLeftInLocalSpace = new Point(getX() - getSize()/2, getY()-getSize()/2); //corresponds to upper left corner on screen
+		
+		Transform concatLTs = Transform.makeIdentity();
+		concatLTs.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+		concatLTs.concatenate(getMyRotation());
+		concatLTs.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+		Transform inverseConcatLTs = Transform.makeIdentity();
+		try {
+			concatLTs.getInverse(inverseConcatLTs);
+		} catch (NotInvertibleException e) {
+			System.out.println("Non invertible xform!");
 		}
+		// fPtr is in the local space of HierObj, calculate the corresponding point in
+		// the local space of Square
+		inverseConcatLTs.transformPoint(fPtr, fPtr);
+		
+		
+		int px = (int) fPtr[0]; // pointer location relative to
+		int py = (int) fPtr[1]; // local origin
+		int xLoc = (int) lowerLeftInLocalSpace.getX(); // square lower left corner
+		int yLoc = (int) lowerLeftInLocalSpace.getY(); // location relative to local origin
+		if ((px >= xLoc) && (px <= xLoc + getSize()) && (py >= yLoc) && (py <= yLoc + getSize()))
+			return true;
+		else
+			return false;
+	}
 
 }

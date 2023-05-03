@@ -43,9 +43,6 @@ abstract class Moveable extends GameObject{
 		//Update current location
 		//this.setLocation(newX, newY);
 		this.translate(newX - this.getX(), newY-this.getY());
-		
-
-
 	}
 	
 	//Getter for speed

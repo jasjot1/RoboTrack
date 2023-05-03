@@ -3,6 +3,8 @@ package com.mycompany.a4;
 import java.util.Random;
 
 import com.codename1.ui.Graphics;
+import com.codename1.ui.Transform;
+import com.codename1.ui.Transform.NotInvertibleException;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 
@@ -39,19 +41,30 @@ public class EnergyStation extends Fixed{
 		return "EnergyStation: " + parentDesc + desc;
 	}
 	
-	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScreen) {
-		g.setColor(getColor());	//Set the color using what was created in Game world
-		
-		if(isSelected()) {
-			g.drawArc((int)(getX()+ pCmpRelPrnt.getX()-getSize()/2), (int)(getY()+ pCmpRelPrnt.getY()-getSize()/2), getSize(), getSize(), 0, 360); //Drawing a filled circle
-		}
-		else {
-			g.fillArc((int)(getX()+ pCmpRelPrnt.getX()-getSize()/2), (int)(getY()+ pCmpRelPrnt.getY()-getSize()/2), getSize(), getSize(), 0, 360); //Drawing a filled circle
-		}
-		
-		g.setColor(ColorUtil.BLACK); //Black text
-		g.drawString(String.valueOf(getCapacity()), (int)(getX()+ pCmpRelPrnt.getX()), (int)(getY()+ pCmpRelPrnt.getY())); //Display capacity of energy station
+	public void draw(Graphics g, Point pCmpRelPrnt, Point pCmpRelScrn) {
+	    g.setColor(getColor());
+
+	    Transform gXform = Transform.makeIdentity();
+	    g.getTransform(gXform);
+	    Transform original = gXform.copy();
+	    gXform.translate(pCmpRelScrn.getX(), pCmpRelScrn.getY());
+	    gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    gXform.concatenate(getMyRotation());
+	    gXform.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
+	    g.setTransform(gXform);
+
+	    int x = (int) (pCmpRelPrnt.getX() - getSize() / 2);
+	    int y = (int) (pCmpRelPrnt.getY() - getSize() / 2);
+	    
+	    g.fillArc(x, y, getSize(), getSize(), 0, 360);
+	    
+	    g.setColor(ColorUtil.BLACK); //Black text
+		g.drawString(String.valueOf(getCapacity()), (int)(pCmpRelPrnt.getX()), (int)(pCmpRelPrnt.getY())); //Display capacity of energy station//Display capacity of energy station
+	   
+	    g.setTransform(original);
 	}
+
 
 
 	@Override
@@ -97,15 +110,30 @@ public class EnergyStation extends Fixed{
 	}
 
 	@Override
-	public boolean contains(Point pPtrRelPrnt, Point pCmpRelPrnt) {
-		int px = (int) pPtrRelPrnt.getX(); // pointer location relative to
-		int py = (int) pPtrRelPrnt.getY(); // parent’s origin
-		int xLoc = (int) (pCmpRelPrnt.getX()+ getX());// shape location relative
-		int yLoc = (int) (pCmpRelPrnt.getY()+ getY());// to parent’s origin
+	public boolean contains(float[] fPtr) {
+		Transform concatLTs = Transform.makeIdentity();
+		concatLTs.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+		concatLTs.concatenate(getMyRotation());
+		concatLTs.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+		Transform inverseConcatLTs = Transform.makeIdentity();
+		try {
+			concatLTs.getInverse(inverseConcatLTs);
+		} catch (NotInvertibleException e) {
+			System.out.println("Non invertible xform!");
+		}
+		// fPtr is in the local space of HierObj, calculate the corresponding point in
+		// the local space of Square
+		inverseConcatLTs.transformPoint(fPtr, fPtr);
 		
-		if ( (px >= xLoc) && (px <= xLoc+getSize()) && (py >= yLoc) && (py <= yLoc+getSize()))
-			return true; 
-		else 
+		Point lowerLeftInLocalSpace = new Point(getX() - getSize()/2, getY()-getSize()/2); //corresponds to upper left corner on screen
+		
+		int px = (int) fPtr[0]; // pointer location relative to
+		int py = (int) fPtr[1]; // local origin
+		int xLoc = (int) lowerLeftInLocalSpace.getX(); // square lower left corner
+		int yLoc = (int) lowerLeftInLocalSpace.getY(); // location relative to local origin
+		if ((px >= xLoc) && (px <= xLoc + getSize()) && (py >= yLoc) && (py <= yLoc + getSize()))
+			return true;
+		else
 			return false;
 	}
 

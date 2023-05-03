@@ -8,6 +8,7 @@ import com.codename1.charts.util.ColorUtil;
 public class PlayerRobot extends Robot{
 
 	private static PlayerRobot robo; //Stores the unique instance of Robot
+	private int armAngle;
 	
 	//Singleton pattern for playerRobot (private constructor)
 	private PlayerRobot(int size, int color, float x, float y) {
@@ -76,14 +77,113 @@ public class PlayerRobot extends Robot{
 	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
 	    g.setTransform(gXform);
 
-	    int x = (int) (pCmpRelPrnt.getX() + getX() - getSize() / 2);
-	    int y = (int) (pCmpRelPrnt.getY() + getY() - getSize() / 2);
+	    int x = (int) (pCmpRelPrnt.getX() - getSize() / 2);
+	    int y = (int) (pCmpRelPrnt.getY() - getSize() / 2);
 
 	    g.fillRect(x, y, getSize(), getSize());
+	    
+	    drawArm(g, x, y);
+	    drawTire(g, x, y);
 
 	    g.setTransform(original); // Restore saved graphics transform
 	}
 
+	
+
+	private void drawArm(Graphics g, int x, int y) {
+	    int armWidth = getSize() / 2;
+	    int armHeight = getSize() / 2;
+
+	    // Calculate the center points for the arms
+	    int centerXLeft = x;
+	    int centerYLeft = y + getSize() / 2;
+	    int centerXRight = x + getSize();
+	    int centerYRight = y + getSize() / 2;
+
+	    // Save the current transform
+	    Transform originalTransform = Transform.makeIdentity();
+	    g.getTransform(originalTransform);
+
+	    // Apply a rotation transform to the left arm
+	    Transform leftArmRotation = Transform.makeIdentity();
+	    leftArmRotation.translate(centerXLeft, centerYLeft);
+	    leftArmRotation.rotate((float) Math.toRadians(armAngle), 0, 0);
+	    leftArmRotation.translate(-centerXLeft, -centerYLeft);
+	    g.transform(leftArmRotation);
+
+	    // Draw the left arm
+	    int[] xPointsLeft = {centerXLeft, centerXLeft - armWidth, centerXLeft};
+	    int[] yPointsLeft = {y, y + armHeight, y + getSize()};
+	    g.fillPolygon(xPointsLeft, yPointsLeft, 3);
+
+	    // Restore the original transform
+	    g.setTransform(originalTransform);
+
+	    // Apply a rotation transform to the right arm
+	    Transform rightArmRotation = Transform.makeIdentity();
+	    rightArmRotation.translate(centerXRight, centerYRight);
+	    rightArmRotation.rotate((float) Math.toRadians(-armAngle), 0, 0);
+	    rightArmRotation.translate(-centerXRight, -centerYRight);
+	    g.transform(rightArmRotation);
+
+	    // Draw the right arm
+	    int[] xPointsRight = {centerXRight, centerXRight + armWidth, centerXRight};
+	    int[] yPointsRight = {y, y + armHeight, y + getSize()};
+	    g.fillPolygon(xPointsRight, yPointsRight, 3);
+
+	    // Restore the original transform
+	    g.setTransform(originalTransform);
+	}
+
+    
+    private void drawTire(Graphics g, int x, int y) {
+        int radius = getSize() / 4; // Calculate radius for the tire (small black circles)
+        int offsetX = getSize() / 4; // Offset for tire position along the x-axis
+        int offsetY = -radius; // Offset for tire position along the y-axis
+
+        g.setColor(ColorUtil.BLACK); // Set the color to black for the tires
+
+        // Draw the left tire
+        g.fillArc(x + offsetX - radius, y + offsetY - radius, 2 * radius, 2 * radius, 0, 360);
+
+        // Draw the right tire
+        g.fillArc(x + getSize() - offsetX - radius, y + offsetY - radius, 2 * radius, 2 * radius, 0, 360);
+    }
+
+    
+    //Override move method from in order to apply dynamic transformation  
+    @Override
+	public void move(int timerRate, int mapWidth, int mapHeight) {
+		double deltaX, deltaY; //Stores calculated values of x/y
+
+		//Calculate deltaX/Y with angle converted to radians
+		deltaX = (Math.cos(Math.toRadians(90 - getHeading())) * getSpeed() * timerRate) / 1000.0;
+	    deltaY = (Math.sin(Math.toRadians(90 - getHeading())) * getSpeed() * timerRate) / 1000.0;
+
+		
+		
+		//Update location by adding deltaX/deltaY to old X/Y
+		float newX = (float) (Math.round((this.getX() + deltaX) * 10.0) / 10.0);
+		float newY = (float) (Math.round((this.getY() + deltaY) * 10.0) / 10.0);
+		
+		//Boundary checking if object moves out of the screen
+		
+		if (newX < 0) {
+			newX = 0;
+		}
+		if (newY < 0) {
+			newY = 0;
+		}
+		if (newX > mapWidth) {
+			newX = mapWidth;
+		}
+		if (newY > mapHeight) {
+			newY = mapHeight;
+		}
+		
+		this.translate(newX - this.getX(), newY-this.getY());
+		armAngle = (armAngle + 5) % 360;
+	}
 
 
 	@Override

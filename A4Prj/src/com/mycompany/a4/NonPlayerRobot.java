@@ -68,8 +68,8 @@ public class NonPlayerRobot extends Robot{
 	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
 	    g.setTransform(gXform);
 
-	    int x = (int) (pCmpRelPrnt.getX() + getX() - getSize() / 2);
-	    int y = (int) (pCmpRelPrnt.getY() + getY() - getSize() / 2);
+	    int x = (int) (pCmpRelPrnt.getX() - getSize() / 2);
+	    int y = (int) (pCmpRelPrnt.getY() - getSize() / 2);
 
 	    g.drawRect(x, y, getSize(), getSize());
 

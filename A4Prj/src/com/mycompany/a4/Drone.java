@@ -26,6 +26,10 @@ public class Drone extends Moveable{
 		this.mapHeight = mapHeight;
 		this.mapWidth = mapWidth;
 		
+		top = new Point(0, getSize()/2);
+		bottomLeft = new Point(-getSize()/2, -getSize()/2);
+		bottomRight = new Point(getSize()/2, -getSize()/2);
+		
 	}
 
 	//Color of drone not allowed to be changed
@@ -73,25 +77,14 @@ public class Drone extends Moveable{
 		gXform.translate(-pCmpRelScrn.getX(),-pCmpRelScrn.getY());
 		g.setTransform(gXform);
 		
-		top = new Point(getX(), getY() + getSize()/2);
-		bottomLeft = new Point(getX()-getSize()/2, getY()-getSize()/2);
-		bottomRight = new Point(getX()+getSize()/2, getY()-getSize()/2);
+		int[] xPoints = {(int) (pCmpRelPrnt.getX() + top.getX()), (int) (pCmpRelPrnt.getX() + bottomLeft.getX()), (int) (pCmpRelPrnt.getX() + bottomRight.getX())};
+	    int[] yPoints = {(int) (pCmpRelPrnt.getY() + top.getY()), (int) (pCmpRelPrnt.getY() + bottomLeft.getY()), (int) (pCmpRelPrnt.getY() + bottomRight.getY())};
+	    g.drawPolygon(xPoints, yPoints, 3);
 		
-	    g.drawLine((int) (pCmpRelPrnt.getX() + top.getX()), (int) (pCmpRelPrnt.getY() + top.getY()),
-	    		(int) (pCmpRelPrnt.getX() + bottomLeft.getX()), 
-	    		(int) (pCmpRelPrnt.getY() + bottomLeft.getY()));
-	    
-	    g.drawLine((int) (pCmpRelPrnt.getX() + bottomLeft.getX()), 
-	    		(int) (pCmpRelPrnt.getY() + bottomLeft.getY()),
-	               (int) (pCmpRelPrnt.getX() + bottomRight.getX()), 
-	               (int) (pCmpRelPrnt.getY() + bottomRight.getY()));
-	    
-	    g.drawLine((int) (pCmpRelPrnt.getX() + bottomRight.getX()), 
-	    		(int) (pCmpRelPrnt.getY() + bottomRight.getY()),
-	               (int) (pCmpRelPrnt.getX() + top.getX()), 
-	               (int) (pCmpRelPrnt.getY() + top.getY()));
+
 	    
 	    g.setTransform(original); //Restore saved graphics transform
+	    
 	}
 
 	@Override
