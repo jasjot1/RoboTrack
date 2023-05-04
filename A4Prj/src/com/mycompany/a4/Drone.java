@@ -131,6 +131,10 @@ public class Drone extends Moveable{
 			gw.checkGameOver(robo);
 		}
 		
+		if (otherObject instanceof Robot) {
+			gw.addShockWave((Robot)otherObject);
+		}
+		
 		//Play drone collision sound
 		gw.droneCollideSoundPlay();
 

@@ -8,4 +8,5 @@ public interface ISelectable {
 	public void setSelected(boolean b);
 	public boolean isSelected();
 	public boolean contains(float[] fPtr);
+	//public boolean contains(Point pPtrRelPrnt, Point pCmpRelPrnt);
 }

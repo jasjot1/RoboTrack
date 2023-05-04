@@ -113,6 +113,8 @@ public class NonPlayerRobot extends Robot{
 				System.out.println("NPR collides with another NPR");
 				
 				gw.robotCollideSoundPlay();
+				
+				gw.addShockWave(this);
 			}
 		}
 		
@@ -144,6 +146,8 @@ public class NonPlayerRobot extends Robot{
 			//Fade color of robot
 			setColor(ColorUtil.red(getColor()), ColorUtil.green(getColor())+40, ColorUtil.blue(getColor())+40);
 			gw.droneCollideSoundPlay();
+			
+			gw.addShockWave(this);
 			
 		}
 		

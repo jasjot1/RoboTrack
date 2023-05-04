@@ -9,6 +9,8 @@ public class PlayerRobot extends Robot{
 
 	private static PlayerRobot robo; //Stores the unique instance of Robot
 	private int armAngle;
+
+    
 	
 	//Singleton pattern for playerRobot (private constructor)
 	private PlayerRobot(int size, int color, float x, float y) {
@@ -23,6 +25,7 @@ public class PlayerRobot extends Robot{
 		setLastBaseReached(1);
 		setSpeed(35);
 		setMaxDamageLevel(25);
+		
 	}
 	
     
@@ -150,6 +153,8 @@ public class PlayerRobot extends Robot{
         g.fillArc(x + getSize() - offsetX - radius, y + offsetY - radius, 2 * radius, 2 * radius, 0, 360);
     }
 
+	
+
     
     //Override move method from in order to apply dynamic transformation  
     @Override
@@ -182,7 +187,7 @@ public class PlayerRobot extends Robot{
 		}
 		
 		this.translate(newX - this.getX(), newY-this.getY());
-		armAngle = (armAngle + 5) % 360;
+		armAngle = (armAngle + 5) % 11;
 	}
 
 
@@ -222,6 +227,8 @@ public class PlayerRobot extends Robot{
 				setColor(ColorUtil.red(getColor())+40, ColorUtil.green(getColor())+40, ColorUtil.blue(getColor()));
 				
 				gw.robotCollideSoundPlay();
+				
+				gw.addShockWave(this);
 			}
 		}
 		

@@ -26,6 +26,11 @@ public class GameObjectCollection implements ICollection{
 		return new GameObjectIterator();
 	}
 	
+    //Remove from collection
+    public void remove(GameObject object) {
+        collection.remove(object);
+    }
+	
 	//Private class for GameObjectIterator
 	private class GameObjectIterator implements IIterator{
 		private int currElementIndex; //Stores current index for elements

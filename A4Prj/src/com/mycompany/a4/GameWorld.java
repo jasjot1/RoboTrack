@@ -218,6 +218,17 @@ public class GameWorld extends Observable{
 				npr.invokeStrategy();
 				
 			}
+			
+			if(obj instanceof ShockWave) {
+				ShockWave wave = (ShockWave) obj;
+				wave.move(timerRate,width,height);
+				
+				
+				if(wave.reachedMaxLifetime()) {
+					gameCollection.remove(wave);
+					break;
+				}
+			}
 		}
 		
 		//collisionCheckCounter++; 
@@ -597,6 +608,23 @@ public class GameWorld extends Observable{
 	public void backgroundSoundPause() {
 		if (getSound())
 			backgroundSound.pause();
+	}
+	
+	public void addGameObject(GameObject gameObject) {
+	    gameCollection.add(gameObject);
+	}
+	
+	public void addShockWave(Robot robo) {
+		// Create a new ShockWave
+		ShockWave shockWave = new ShockWave(50, ColorUtil.CYAN, robo.getX(), robo.getY(), width, height);
+
+		Random rand = new Random();
+		shockWave.setHeading(rand.nextInt(360));
+		gameCollection.add(shockWave);
+	}
+	
+	public void removeShockWave(ShockWave wave) {
+		gameCollection.remove(wave);
 	}
 	
 }

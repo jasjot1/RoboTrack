@@ -104,7 +104,6 @@ public class MapView extends Container implements Observer{
 	    return tmpXform;
 	}
 	
-	//Make fixed objects selectable while in pause mode
 	public void pointerPressed(int x, int y) {
 		x = x - getParent().getAbsoluteX();
 		y = y - getParent().getAbsoluteY();
