@@ -11,6 +11,7 @@ import com.codename1.charts.util.ColorUtil;
 
 public class EnergyStation extends Fixed{
 	private static Random rand = new Random();
+	Point lowerLeftInLocalSpace;
 	
 	private int capacity;	//Stores the capacity of energy station
 	
@@ -19,6 +20,8 @@ public class EnergyStation extends Fixed{
 		//Parent constructor updated with random size, random location, and color chosen.
 		super(40 + rand.nextInt(60),color, (rand.nextInt(mapWidth)), (rand.nextInt(mapHeight)));
 		capacity = getSize();	//Capacity is the same as the random size
+		
+		lowerLeftInLocalSpace = new Point(getX() - getSize() / 2, getY() - getSize() / 2);
 	}
 
 	//Getter for capacity
@@ -59,14 +62,23 @@ public class EnergyStation extends Fixed{
 	    
 	    g.fillArc(x, y, getSize(), getSize(), 0, 360);
 	    
+	    //Text shows up wrong way, use this to fix it
+	    gXform = original.copy();
+	    gXform.translate(pCmpRelScrn.getX(), pCmpRelScrn.getY());
+	    gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    gXform.scale(1, -1); // Reflect the text vertically
+	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
+	    g.setTransform(gXform);
+	    
 	    g.setColor(ColorUtil.BLACK); //Black text
-		g.drawString(String.valueOf(getCapacity()), (int)(pCmpRelPrnt.getX()), (int)(pCmpRelPrnt.getY())); //Display capacity of energy station//Display capacity of energy station
-	   
+	    g.drawString(String.valueOf(getCapacity()), x + getSize() / 4, y + getSize() / 4); //Display capacity of energy station
+
 	    g.setTransform(original);
 	}
 
 
 
+	
 	@Override
 	public boolean collidesWith(GameObject otherObject) {
 		//Bounding boxes for current object and other object
@@ -124,8 +136,6 @@ public class EnergyStation extends Fixed{
 		// fPtr is in the local space of HierObj, calculate the corresponding point in
 		// the local space of Square
 		inverseConcatLTs.transformPoint(fPtr, fPtr);
-		
-		Point lowerLeftInLocalSpace = new Point(getX() - getSize()/2, getY()-getSize()/2); //corresponds to upper left corner on screen
 		
 		int px = (int) fPtr[0]; // pointer location relative to
 		int py = (int) fPtr[1]; // local origin

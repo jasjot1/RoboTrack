@@ -52,8 +52,6 @@ abstract class GameObject implements IDrawable, ICollider{
 	
 	//Setter for location
 	public void setLocation(float x, float y) {
-		//location.setX(x);
-		//location.setY(y);
 	    myTranslation.setIdentity();
 	    myTranslation.translate(x, y);
 	}

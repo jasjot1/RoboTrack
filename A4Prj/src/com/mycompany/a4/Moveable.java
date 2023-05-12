@@ -19,7 +19,6 @@ abstract class Moveable extends GameObject{
 	    deltaY = (Math.sin(Math.toRadians(90 - this.heading)) * this.speed * timerRate) / 1000.0;
 
 		
-		
 		//Update location by adding deltaX/deltaY to old X/Y
 		float newX = (float) (Math.round((this.getX() + deltaX) * 10.0) / 10.0);
 		float newY = (float) (Math.round((this.getY() + deltaY) * 10.0) / 10.0);

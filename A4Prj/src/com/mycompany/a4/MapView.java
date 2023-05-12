@@ -105,10 +105,10 @@ public class MapView extends Container implements Observer{
 	}
 	
 	public void pointerPressed(int x, int y) {
-		x = x - getParent().getAbsoluteX();
-		y = y - getParent().getAbsoluteY();
-		Point pPtrRelPrnt = new Point(x, y);
-		Point pCmpRelPrnt = new Point(getX(), getY());
+		//x = x - getParent().getAbsoluteX();
+		//y = y - getParent().getAbsoluteY();
+		//Point pPtrRelPrnt = new Point(x, y);
+		//Point pCmpRelPrnt = new Point(getX(), getY());
 		
 	    float[] fPtr = new float[] {x - getAbsoluteX(), y - getAbsoluteY()};
 	    Transform inverseVTM = Transform.makeIdentity();
@@ -123,7 +123,7 @@ public class MapView extends Container implements Observer{
 		GameObjectCollection collection = gw.getCollection();	//Get the game object collection
 		IIterator elements = collection.getIterator();
 		
-		if (!gw.isPlayMode()) { //if in play mode
+		if (!gw.isPlayMode()) { //if in pause mode
 			while (elements.hasNext()) {
 				GameObject obj = (GameObject) elements.getNext();
 				if (obj instanceof Fixed) {
@@ -132,8 +132,8 @@ public class MapView extends Container implements Observer{
 					//If object inside pointer
 					if (fixedObj.contains(fPtr)) {
 						fixedObj.setSelected(true);
-	
 					}
+
 					
 					else {
 						//If the position button is selected 

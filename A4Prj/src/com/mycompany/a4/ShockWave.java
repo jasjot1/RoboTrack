@@ -139,8 +139,6 @@ public class ShockWave extends Moveable {
 			newY = mapHeight;
 		}
 		
-		System.out.println(newX);
-		
 		deltaX = newX - this.getX();
 		deltaY = newY - this.getY();
 

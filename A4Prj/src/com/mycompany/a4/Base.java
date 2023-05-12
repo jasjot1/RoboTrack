@@ -9,6 +9,7 @@ import com.codename1.charts.util.ColorUtil;
 public class Base extends Fixed {
 	private final int sequenceNumber; // Each base is numbered marker
 	private Point top, bottomLeft, bottomRight;
+	Point lowerLeftInLocalSpace;
 
 	public Base(int sequenceNumber, int size, int color, float x, float y) {
 		super(size, color, x, y);
@@ -16,6 +17,8 @@ public class Base extends Fixed {
 		top = new Point(0, getSize() / 2);
 		bottomLeft = new Point(-getSize() / 2, -getSize() / 2);
 		bottomRight = new Point(getSize() / 2, -getSize() / 2);
+		
+		lowerLeftInLocalSpace = new Point(- getSize()/2, -getSize() / 2);
 	}
 
 	public int getSequenceNumber() {
@@ -67,11 +70,15 @@ public class Base extends Fixed {
 		} else // Unfilled triangle if selected
 			g.fillPolygon(xPoints, yPoints, 3);
 
+	    gXform = original.copy();
+	    gXform.translate(pCmpRelScrn.getX(), pCmpRelScrn.getY());
+	    gXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    gXform.scale(1, -1); // Reflect the text vertically
+	    gXform.translate(-pCmpRelScrn.getX(), -pCmpRelScrn.getY());
+	    g.setTransform(gXform);
+		
 		g.setColor(ColorUtil.BLACK); // Black text
-		g.drawString(String.valueOf(sequenceNumber), (int) (pCmpRelPrnt.getX()), (int) (pCmpRelPrnt.getY())); // Display
-																												// sequence
-																												// number
-
+		g.drawString(String.valueOf(sequenceNumber), (int) (pCmpRelPrnt.getX()), (int) (pCmpRelPrnt.getY())); 
 		g.setTransform(original); // Restore saved graphics transform
 	}
 
@@ -123,11 +130,6 @@ public class Base extends Fixed {
 	}
 
 	public boolean contains(float[] fPtr) {
-
-		Point lowerLeftInLocalSpace = new Point(getX() - getSize() / 2, getY() - getSize() / 2); // corresponds to upper
-																									// left corner on
-																									// screen
-
 		Transform concatLTs = Transform.makeIdentity();
 		concatLTs.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
 		concatLTs.concatenate(getMyRotation());
@@ -141,7 +143,7 @@ public class Base extends Fixed {
 		// fPtr is in the local space of HierObj, calculate the corresponding point in
 		// the local space of Square
 		inverseConcatLTs.transformPoint(fPtr, fPtr);
-
+		
 		int px = (int) fPtr[0]; // pointer location relative to
 		int py = (int) fPtr[1]; // local origin
 		int xLoc = (int) lowerLeftInLocalSpace.getX(); // square lower left corner

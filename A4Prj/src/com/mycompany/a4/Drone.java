@@ -82,9 +82,7 @@ public class Drone extends Moveable{
 	    g.drawPolygon(xPoints, yPoints, 3);
 		
 
-	    
 	    g.setTransform(original); //Restore saved graphics transform
-	    
 	}
 
 	@Override
