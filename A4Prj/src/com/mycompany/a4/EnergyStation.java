@@ -60,7 +60,12 @@ public class EnergyStation extends Fixed{
 	    int x = (int) (pCmpRelPrnt.getX() - getSize() / 2);
 	    int y = (int) (pCmpRelPrnt.getY() - getSize() / 2);
 	    
-	    g.fillArc(x, y, getSize(), getSize(), 0, 360);
+	    if (isSelected()) {
+	    	g.drawArc(x, y, getSize(), getSize(), 0, 360);
+	    }
+	    else {
+	    	g.fillArc(x, y, getSize(), getSize(), 0, 360);
+	    }
 	    
 	    //Text shows up wrong way, use this to fix it
 	    gXform = original.copy();
@@ -121,30 +126,36 @@ public class EnergyStation extends Fixed{
 		}
 	}
 
-	@Override
-	public boolean contains(float[] fPtr) {
-		Transform concatLTs = Transform.makeIdentity();
-		concatLTs.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
-		concatLTs.concatenate(getMyRotation());
-		concatLTs.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
-		Transform inverseConcatLTs = Transform.makeIdentity();
+	public boolean contains(float x, float y, int absX, int absY) {
+		boolean hit = false;
+		
+	    Transform localXform = Transform.makeIdentity();
+	    localXform.translate(absX, absY);
+	    localXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    localXform.concatenate(getMyRotation());
+	    localXform.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+	    localXform.translate(-absX, -absY);
+
 		try {
-			concatLTs.getInverse(inverseConcatLTs);
+			
+			float[] pts = { x, y };
+			Transform inverseConcatLTs = Transform.makeIdentity();
+			Transform xForm = Transform.makeTranslation(absX, absY);
+			xForm.concatenate(localXform);
+			xForm.translate(-absX, -absY);
+			xForm.getInverse(inverseConcatLTs);
+			inverseConcatLTs.transformPoint(pts, pts);
+			
+			int px = (int) pts[0]; 
+			int py = (int) pts[1]; 
+		    
+			if ( (px >= -getSize()/2) && (px <= getSize()/2) && (py >= -getSize()/2) && (py <= getSize()/2))
+				hit = true;
+			
 		} catch (NotInvertibleException e) {
 			System.out.println("Non invertible xform!");
 		}
-		// fPtr is in the local space of HierObj, calculate the corresponding point in
-		// the local space of Square
-		inverseConcatLTs.transformPoint(fPtr, fPtr);
-		
-		int px = (int) fPtr[0]; // pointer location relative to
-		int py = (int) fPtr[1]; // local origin
-		int xLoc = (int) lowerLeftInLocalSpace.getX(); // square lower left corner
-		int yLoc = (int) lowerLeftInLocalSpace.getY(); // location relative to local origin
-		if ((px >= xLoc) && (px <= xLoc + getSize()) && (py >= yLoc) && (py <= yLoc + getSize()))
-			return true;
-		else
-			return false;
+		return hit;
 	}
 
 }

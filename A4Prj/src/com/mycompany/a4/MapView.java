@@ -37,7 +37,6 @@ public class MapView extends Container implements Observer{
 		winRight = 500;
 		winTop = 500;
 		
-		
 		theVTM = Transform.makeIdentity();
 	}
 	
@@ -105,53 +104,52 @@ public class MapView extends Container implements Observer{
 	}
 	
 	public void pointerPressed(int x, int y) {
-		//x = x - getParent().getAbsoluteX();
-		//y = y - getParent().getAbsoluteY();
-		//Point pPtrRelPrnt = new Point(x, y);
-		//Point pCmpRelPrnt = new Point(getX(), getY());
+		x = x - getAbsoluteX();
+		y = y - getAbsoluteY();
 		
-	    float[] fPtr = new float[] {x - getAbsoluteX(), y - getAbsoluteY()};
-	    Transform inverseVTM = Transform.makeIdentity();
+	    Transform inverseConcatLTs = Transform.makeIdentity();
 	    try {
-	        theVTM.getInverse(inverseVTM);
-	    } catch (NotInvertibleException e) {
-	        System.out.println("Non invertible xform!");
-	    }
-	    
-	    inverseVTM.transformPoint(fPtr, fPtr);
-		
-		GameObjectCollection collection = gw.getCollection();	//Get the game object collection
-		IIterator elements = collection.getIterator();
-		
-		if (!gw.isPlayMode()) { //if in pause mode
-			while (elements.hasNext()) {
-				GameObject obj = (GameObject) elements.getNext();
-				if (obj instanceof Fixed) {
-					Fixed fixedObj = (Fixed) obj;
-					
-					//If object inside pointer
-					if (fixedObj.contains(fPtr)) {
-						fixedObj.setSelected(true);
-					}
-
-					
-					else {
-						//If the position button is selected 
-						if (gw.isPositionPressed()) {
-							if (fixedObj.isSelected()) {
-							fixedObj.setLocation(fPtr[0], fPtr[1]); //Set the location to where the pointer pressed
-							
-							repaint();
-							
-							gw.setPositionPressed(false); //No longer selected
-							}
+	    	float[] pts = {x,y};
+	        theVTM.getInverse(inverseConcatLTs);
+	        inverseConcatLTs.transformPoint(pts, pts);
+	        
+			GameObjectCollection collection = gw.getCollection();	//Get the game object collection
+			IIterator elements = collection.getIterator();
+			if (!gw.isPlayMode()) { //if in pause mode
+				while (elements.hasNext()) {
+					GameObject obj = (GameObject) elements.getNext();
+					if (obj instanceof Fixed) {
+						Fixed fixedObj = (Fixed) obj;
+						
+						//If object inside pointer
+						if (fixedObj.contains(pts[0], pts[1], getAbsoluteX(), getAbsoluteY())) {
+							fixedObj.setSelected(true);
 						}
-						fixedObj.setSelected(false);
+
+						
+						else {
+							//If the position button is selected 
+							if (gw.isPositionPressed()) {
+								if (fixedObj.isSelected()) {
+								fixedObj.setLocation(pts[0], pts[1]); //Set the location to where the pointer pressed
+								
+								repaint();
+								
+								gw.setPositionPressed(false); //No longer selected
+								}
+							}
+							fixedObj.setSelected(false);
+						}
 					}
 				}
 			}
-		}
-		repaint();
+			repaint();
+	    } catch (NotInvertibleException e) {
+	        System.out.println("Non invertible xform!");
+	    }
+
+	    
+
 	}
 	
 	
@@ -191,7 +189,7 @@ public class MapView extends Container implements Observer{
 	
 	@Override
 	public boolean pinch(float scale) {
-		System.out.println("pinch" + scale);
+		//System.out.println("pinch" + scale);
 		if (scale < 1.0) {
 			zoom(1.01f);
 		} else if (scale > 1.0) {

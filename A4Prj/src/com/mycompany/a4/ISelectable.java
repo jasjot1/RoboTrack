@@ -7,6 +7,5 @@ public interface ISelectable {
 	//From notes (7b - Interactive II)
 	public void setSelected(boolean b);
 	public boolean isSelected();
-	public boolean contains(float[] fPtr);
-	//public boolean contains(Point pPtrRelPrnt, Point pCmpRelPrnt);
+	public boolean contains(float x, float y, int absX, int absY);
 }

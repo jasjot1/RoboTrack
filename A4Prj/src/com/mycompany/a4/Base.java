@@ -129,28 +129,36 @@ public class Base extends Fixed {
 		gw.checkWin();
 	}
 
-	public boolean contains(float[] fPtr) {
-		Transform concatLTs = Transform.makeIdentity();
-		concatLTs.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
-		concatLTs.concatenate(getMyRotation());
-		concatLTs.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
-		Transform inverseConcatLTs = Transform.makeIdentity();
+	public boolean contains(float x, float y, int absX, int absY) {
+		boolean hit = false;
+		
+	    Transform localXform = Transform.makeIdentity();
+	    localXform.translate(absX, absY);
+	    localXform.translate(getMyTranslation().getTranslateX(), getMyTranslation().getTranslateY());
+	    localXform.concatenate(getMyRotation());
+	    localXform.scale(getMyScale().getScaleX(), getMyScale().getScaleY());
+	    localXform.translate(-absX, -absY);
+
 		try {
-			concatLTs.getInverse(inverseConcatLTs);
+			
+			float[] pts = { x, y };
+			Transform inverseConcatLTs = Transform.makeIdentity();
+			Transform xForm = Transform.makeTranslation(absX, absY);
+			xForm.concatenate(localXform);
+			xForm.translate(-absX, -absY);
+			xForm.getInverse(inverseConcatLTs);
+			inverseConcatLTs.transformPoint(pts, pts);
+			
+			int px = (int) pts[0]; 
+			int py = (int) pts[1]; 
+			
+		    
+			if ( (px >= -getSize()/2) && (px <= getSize()/2) && (py >= -getSize()/2) && (py <= getSize()/2))
+				hit = true;
+			
 		} catch (NotInvertibleException e) {
 			System.out.println("Non invertible xform!");
 		}
-		// fPtr is in the local space of HierObj, calculate the corresponding point in
-		// the local space of Square
-		inverseConcatLTs.transformPoint(fPtr, fPtr);
-		
-		int px = (int) fPtr[0]; // pointer location relative to
-		int py = (int) fPtr[1]; // local origin
-		int xLoc = (int) lowerLeftInLocalSpace.getX(); // square lower left corner
-		int yLoc = (int) lowerLeftInLocalSpace.getY(); // location relative to local origin
-		if ((px >= xLoc) && (px <= xLoc + getSize()) && (py >= yLoc) && (py <= yLoc + getSize()))
-			return true;
-		else
-			return false;
+		return hit;
 	}
 }
